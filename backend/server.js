@@ -97,18 +97,22 @@ io.on('connection', (socket) => {
   });
 });
 
-// ─── Start Server ────────────────────────────────────────────────────────────
+// ─── Start Server (local dev only) ──────────────────────────────────────────
 const PORT = process.env.PORT || 5000;
 
-httpServer.on('error', (err) => {
-  if (err.code === 'EADDRINUSE') {
-    console.error(`❌ Port ${PORT} is already in use. Kill the other process and retry.`);
-    process.exit(1);
-  }
-  throw err;
-});
+if (process.env.NODE_ENV !== 'production') {
+  httpServer.on('error', (err) => {
+    if (err.code === 'EADDRINUSE') {
+      console.error(`❌ Port ${PORT} is already in use. Kill the other process and retry.`);
+      process.exit(1);
+    }
+    throw err;
+  });
 
-httpServer.listen(PORT, () => {
-  console.log(`🚀 Server running on http://localhost:${PORT}`);
-});
+  httpServer.listen(PORT, () => {
+    console.log(`🚀 Server running on http://localhost:${PORT}`);
+  });
+}
 
+// ─── Export for Vercel Serverless ────────────────────────────────────────────
+export default app;
