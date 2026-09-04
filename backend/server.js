@@ -42,16 +42,37 @@ mongoose.connection.once('open', async () => {
 const app = express();
 const httpServer = http.createServer(app);
 
+const ALLOWED_ORIGINS = [
+  process.env.CLIENT_URL,
+  'https://big-eth-finance.vercel.app',
+  'http://localhost:5173',
+].filter(Boolean);
+
+const corsOptions = {
+  origin: (origin, callback) => {
+    // Allow requests with no origin (e.g. mobile apps, curl)
+    if (!origin || ALLOWED_ORIGINS.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error(`CORS blocked: ${origin}`));
+    }
+  },
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true,
+};
+
 const io = new Server(httpServer, {
   cors: {
-    origin: process.env.CLIENT_URL,
+    origin: ALLOWED_ORIGINS,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
     credentials: true,
   },
 });
 
 // ─── Middleware ──────────────────────────────────────────────────────────────
-app.use(cors({ origin: process.env.CLIENT_URL, credentials: true }));
+app.use(cors(corsOptions));
+app.options('*', cors(corsOptions)); // Handle preflight for all routes
 app.use(express.json());
 
 // Attach io instance to every request
