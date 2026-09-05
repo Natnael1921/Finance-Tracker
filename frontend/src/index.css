@@ -190,6 +190,72 @@ body {
 }
 
 /* ─── Page Entry Animation ──────────────────────────────────────────────────── */
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* ─── Page Entry Animation ──────────────────────────────────────────────────── */
 .page-enter {
   animation: slideUp 0.35s ease-out;
 }
+
+/* ─── Mobile / Responsive Utilities ────────────────────────────────────── */
+
+/* Safe area for iOS home bar */
+.pb-safe {
+  padding-bottom: env(safe-area-inset-bottom, 12px);
+}
+
+/* Touch-friendly tap targets on mobile */
+@media (max-width: 1023px) {
+  .nav-item {
+    padding-top: 0.75rem;
+    padding-bottom: 0.75rem;
+    font-size: 1rem;
+    line-height: 1.5rem;
+  }
+
+  .btn-primary,
+  .btn-secondary,
+  .btn-ghost {
+    min-height: 44px;
+  }
+
+  /* Prevents iOS auto-zoom on input focus */
+  .input,
+  .select {
+    font-size: 16px;
+    min-height: 48px;
+  }
+}
+
+/* Stat card compact on mobile */
+@media (max-width: 639px) {
+  .stat-card {
+    padding: 1rem;
+  }
+}
+
+/* Responsive page header utility */
+.page-header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+@media (min-width: 640px) {
+  .page-header {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 2rem;
+  }
+}
+
+

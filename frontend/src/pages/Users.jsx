@@ -74,12 +74,16 @@ export default function Users() {
 
   return (
     <Layout>
-      <div className="flex items-center justify-between mb-7">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-7 gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-base-50">User Management</h1>
+          <h1 className="text-xl sm:text-2xl font-bold text-base-50">User Management</h1>
           <p className="text-base-400 text-sm mt-0.5">Manage admin accounts — Superadmin only</p>
         </div>
-        <button onClick={() => setShowForm((s) => !s)} className="btn-primary text-sm">
+        <button
+          onClick={() => setShowForm((s) => !s)}
+          className="btn-primary text-sm self-start sm:self-auto"
+        >
           <UserPlus className="w-4 h-4" />
           {showForm ? 'Cancel' : 'Add Admin'}
         </button>
@@ -94,7 +98,7 @@ export default function Users() {
 
       {/* Create Form */}
       {showForm && (
-        <div className="glass p-6 mb-6 animate-slide-up">
+        <div className="glass p-4 sm:p-6 mb-6 animate-slide-up">
           <h2 className="text-sm font-semibold text-base-200 mb-4 flex items-center gap-2">
             <Plus className="w-4 h-4 text-accent-500" />
             New Admin Account
@@ -139,7 +143,11 @@ export default function Users() {
               </select>
             </div>
             <div className="sm:col-span-2 flex justify-end">
-              <button type="submit" disabled={saving} className="btn-primary text-sm disabled:opacity-60">
+              <button
+                type="submit"
+                disabled={saving}
+                className="btn-primary text-sm disabled:opacity-60 w-full sm:w-auto justify-center"
+              >
                 {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
                 {saving ? 'Creating...' : 'Create Account'}
               </button>
@@ -148,9 +156,9 @@ export default function Users() {
         </div>
       )}
 
-      {/* Users table */}
+      {/* Users list */}
       <div className="glass overflow-hidden">
-        <div className="px-6 py-4 border-b border-base-800 flex items-center gap-2">
+        <div className="px-4 sm:px-6 py-4 border-b border-base-800 flex items-center gap-2">
           <UsersIcon className="w-4 h-4 text-base-400" />
           <h2 className="text-sm font-semibold text-base-200">{users.length} accounts</h2>
         </div>
@@ -160,76 +168,130 @@ export default function Users() {
             <Loader2 className="w-7 h-7 text-accent-500 animate-spin" />
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="border-b border-base-800">
-                <tr>
-                  {['User', 'Role', 'Status', 'Joined', 'Actions'].map((h) => (
-                    <th key={h} className="table-header">{h}</th>
+          <>
+            {/* Desktop table — md and up */}
+            <div className="hidden md:block overflow-x-auto">
+              <table className="w-full">
+                <thead className="border-b border-base-800">
+                  <tr>
+                    {['User', 'Role', 'Status', 'Joined', 'Actions'].map((h) => (
+                      <th key={h} className="table-header">{h}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {users.map((u) => (
+                    <tr key={u._id} className="table-row">
+                      <td className="table-cell">
+                        <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 rounded-full bg-accent-900/50 border border-accent-800/40 flex items-center justify-center shrink-0">
+                            <span className="text-accent-400 text-xs font-bold uppercase">{u.name.charAt(0)}</span>
+                          </div>
+                          <div>
+                            <p className="font-medium text-base-100 text-sm">{u.name}</p>
+                            <p className="text-xs text-base-500">{u.email}</p>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="table-cell">
+                        <span className={`badge ${u.role === 'superadmin' ? 'bg-purple-900/40 text-purple-400 border border-purple-800/40' : 'bg-blue-900/40 text-blue-400 border border-blue-800/40'}`}>
+                          {u.role === 'superadmin' ? <ShieldCheck className="w-3 h-3" /> : <Shield className="w-3 h-3" />}
+                          {u.role}
+                        </span>
+                      </td>
+                      <td className="table-cell">
+                        <span className={`badge ${u.isActive ? 'badge-income' : 'badge-expense'}`}>
+                          {u.isActive ? 'Active' : 'Deactivated'}
+                        </span>
+                      </td>
+                      <td className="table-cell text-base-500 text-xs">
+                        {new Date(u.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                      </td>
+                      <td className="table-cell">
+                        {u._id !== currentUser._id && u.role !== 'superadmin' && (
+                          <div className="flex items-center gap-1">
+                            <button
+                              onClick={() => handleToggle(u._id)}
+                              disabled={actionId === u._id}
+                              title={u.isActive ? 'Deactivate' : 'Activate'}
+                              className="btn-ghost p-2 text-base-500 hover:text-amber-400"
+                            >
+                              {actionId === u._id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Power className="w-3.5 h-3.5" />}
+                            </button>
+                            <button
+                              onClick={() => handleDelete(u._id)}
+                              disabled={actionId === u._id}
+                              className="btn-ghost p-2 text-base-500 hover:text-red-400"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        )}
+                        {u._id === currentUser._id && (
+                          <span className="text-xs text-base-600 italic">You</span>
+                        )}
+                      </td>
+                    </tr>
                   ))}
-                </tr>
-              </thead>
-              <tbody>
-                {users.map((u) => (
-                  <tr key={u._id} className="table-row">
-                    <td className="table-cell">
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full bg-accent-900/50 border border-accent-800/40 flex items-center justify-center shrink-0">
-                          <span className="text-accent-400 text-xs font-bold uppercase">{u.name.charAt(0)}</span>
-                        </div>
-                        <div>
-                          <p className="font-medium text-base-100 text-sm">{u.name}</p>
-                          <p className="text-xs text-base-500">{u.email}</p>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="table-cell">
-                      <span className={`badge ${u.role === 'superadmin' ? 'bg-purple-900/40 text-purple-400 border border-purple-800/40' : 'bg-blue-900/40 text-blue-400 border border-blue-800/40'}`}>
-                        {u.role === 'superadmin' ? <ShieldCheck className="w-3 h-3" /> : <Shield className="w-3 h-3" />}
-                        {u.role}
-                      </span>
-                    </td>
-                    <td className="table-cell">
-                      <span className={`badge ${u.isActive ? 'badge-income' : 'badge-expense'}`}>
-                        {u.isActive ? 'Active' : 'Deactivated'}
-                      </span>
-                    </td>
-                    <td className="table-cell text-base-500 text-xs">
-                      {new Date(u.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
-                    </td>
-                    <td className="table-cell">
-                      {u._id !== currentUser._id && u.role !== 'superadmin' && (
-                        <div className="flex items-center gap-1">
+                </tbody>
+              </table>
+            </div>
+
+            {/* Mobile card list */}
+            <div className="md:hidden divide-y divide-base-800">
+              {users.map((u) => (
+                <div key={u._id} className="p-4 flex flex-col gap-3">
+                  {/* Avatar + name */}
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-accent-900/50 border border-accent-800/40 flex items-center justify-center shrink-0">
+                      <span className="text-accent-400 text-sm font-bold uppercase">{u.name.charAt(0)}</span>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium text-base-100 text-sm truncate">{u.name}</p>
+                      <p className="text-xs text-base-500 truncate">{u.email}</p>
+                    </div>
+                    {/* Action buttons */}
+                    <div className="flex items-center gap-1 shrink-0">
+                      {u._id !== currentUser._id && u.role !== 'superadmin' ? (
+                        <>
                           <button
                             onClick={() => handleToggle(u._id)}
                             disabled={actionId === u._id}
-                            title={u.isActive ? 'Deactivate' : 'Activate'}
                             className="btn-ghost p-2 text-base-500 hover:text-amber-400"
                           >
-                            {actionId === u._id ? (
-                              <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                            ) : (
-                              <Power className="w-3.5 h-3.5" />
-                            )}
+                            {actionId === u._id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Power className="w-4 h-4" />}
                           </button>
                           <button
                             onClick={() => handleDelete(u._id)}
                             disabled={actionId === u._id}
                             className="btn-ghost p-2 text-base-500 hover:text-red-400"
                           >
-                            <Trash2 className="w-3.5 h-3.5" />
+                            <Trash2 className="w-4 h-4" />
                           </button>
-                        </div>
-                      )}
-                      {u._id === currentUser._id && (
-                        <span className="text-xs text-base-600 italic">You</span>
-                      )}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                        </>
+                      ) : u._id === currentUser._id ? (
+                        <span className="text-xs text-base-600 italic px-2">You</span>
+                      ) : null}
+                    </div>
+                  </div>
+
+                  {/* Badges row */}
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className={`badge ${u.role === 'superadmin' ? 'bg-purple-900/40 text-purple-400 border border-purple-800/40' : 'bg-blue-900/40 text-blue-400 border border-blue-800/40'}`}>
+                      {u.role === 'superadmin' ? <ShieldCheck className="w-3 h-3" /> : <Shield className="w-3 h-3" />}
+                      {u.role}
+                    </span>
+                    <span className={`badge ${u.isActive ? 'badge-income' : 'badge-expense'}`}>
+                      {u.isActive ? 'Active' : 'Deactivated'}
+                    </span>
+                    <span className="text-xs text-base-500 ml-auto">
+                      {new Date(u.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </>
         )}
       </div>
     </Layout>

@@ -51,91 +51,99 @@ export default function EditTransactionModal({ transaction, onClose, onSaved }) 
   const categories = form.type === 'income' ? INCOME_CATEGORIES : EXPENSE_CATEGORIES;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-base-black/70 backdrop-blur-sm animate-fade-in">
-      <div className="glass w-full max-w-lg animate-slide-up">
+    /* Backdrop */
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center sm:p-4 bg-base-black/70 backdrop-blur-sm animate-fade-in">
+      {/* Panel — sheet on mobile, centered modal on sm+ */}
+      <div className="glass w-full sm:max-w-lg rounded-t-2xl sm:rounded-2xl flex flex-col animate-slide-up max-h-[92dvh] sm:max-h-[90vh]">
+
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-base-800">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-base-800 shrink-0">
           <h2 className="text-base font-semibold text-base-100">Edit Transaction</h2>
-          <button onClick={onClose} className="btn-ghost p-2">
+          <button onClick={onClose} className="btn-ghost p-2 -mr-1">
             <X className="w-4 h-4" />
           </button>
         </div>
 
-        {/* Body */}
-        <form onSubmit={handleSubmit} className="p-6 space-y-4">
-          {error && (
-            <div className="text-sm text-red-400 bg-red-950/40 border border-red-800/40 px-3 py-2.5 rounded-lg">
-              {error}
-            </div>
-          )}
+        {/* Scrollable body */}
+        <div className="flex-1 overflow-y-auto overscroll-contain">
+          <form onSubmit={handleSubmit} className="p-5 space-y-4">
+            {error && (
+              <div className="text-sm text-red-400 bg-red-950/40 border border-red-800/40 px-3 py-2.5 rounded-lg">
+                {error}
+              </div>
+            )}
 
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="label">Type</label>
-              <select name="type" value={form.type} onChange={handleChange} className="select text-sm">
-                <option value="income">Income</option>
-                <option value="expense">Expense</option>
-              </select>
-            </div>
-            <div>
-              <label className="label">Amount (USD)</label>
-              <div className="relative">
-                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-base-400 text-sm">$</span>
-                <input
-                  name="amount" type="number" min="0.01" step="0.01" required
-                  value={form.amount}
-                  onChange={handleChange}
-                  className="input pl-8 text-sm"
-                />
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="label">Type</label>
+                <select name="type" value={form.type} onChange={handleChange} className="select text-sm w-full">
+                  <option value="income">Income</option>
+                  <option value="expense">Expense</option>
+                </select>
+              </div>
+              <div>
+                <label className="label">Amount (USD)</label>
+                <div className="relative">
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-base-400 text-sm">$</span>
+                  <input
+                    name="amount" type="number" min="0.01" step="0.01" required
+                    value={form.amount}
+                    onChange={handleChange}
+                    className="input pl-8 text-sm w-full"
+                  />
+                </div>
               </div>
             </div>
-          </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="label">Category</label>
-              <select name="category" value={form.category} onChange={handleChange} className="select text-sm">
-                {categories.map((c) => <option key={c} value={c}>{c}</option>)}
-              </select>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="label">Category</label>
+                <select name="category" value={form.category} onChange={handleChange} className="select text-sm w-full">
+                  {categories.map((c) => <option key={c} value={c}>{c}</option>)}
+                </select>
+              </div>
+              <div>
+                <label className="label">Cash Source</label>
+                <select name="cashSource" value={form.cashSource} onChange={handleChange} className="select text-sm w-full">
+                  <option value="personal">Personal</option>
+                  <option value="company">Company</option>
+                  <option value="borrowed">Borrowed</option>
+                </select>
+              </div>
             </div>
+
             <div>
-              <label className="label">Cash Source</label>
-              <select name="cashSource" value={form.cashSource} onChange={handleChange} className="select text-sm">
-                <option value="personal">Personal</option>
-                <option value="company">Company</option>
-                <option value="borrowed">Borrowed</option>
-              </select>
+              <label className="label">Reason</label>
+              <input
+                name="reason" type="text" placeholder="What's this for?"
+                value={form.reason}
+                onChange={handleChange}
+                className="input text-sm w-full"
+              />
             </div>
-          </div>
 
-          <div>
-            <label className="label">Reason</label>
-            <input
-              name="reason" type="text" placeholder="What's this for?"
-              value={form.reason}
-              onChange={handleChange}
-              className="input text-sm"
-            />
-          </div>
+            <div>
+              <label className="label">Description</label>
+              <textarea
+                name="description" rows={2} placeholder="Optional details..."
+                value={form.description}
+                onChange={handleChange}
+                className="input resize-none text-sm w-full"
+              />
+            </div>
 
-          <div>
-            <label className="label">Description</label>
-            <textarea
-              name="description" rows={2} placeholder="Optional details..."
-              value={form.description}
-              onChange={handleChange}
-              className="input resize-none text-sm"
-            />
-          </div>
-
-          <div className="flex justify-end gap-3 pt-2">
-            <button type="button" onClick={onClose} className="btn-secondary text-sm">Cancel</button>
-            <button type="submit" disabled={saving} className="btn-primary text-sm disabled:opacity-60">
-              {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-              {saving ? 'Saving...' : 'Save Changes'}
-            </button>
-          </div>
-        </form>
+            {/* Buttons — stacked on mobile */}
+            <div className="flex flex-col-reverse sm:flex-row justify-end gap-3 pt-1 pb-2">
+              <button type="button" onClick={onClose} className="btn-secondary text-sm w-full sm:w-auto justify-center">
+                Cancel
+              </button>
+              <button type="submit" disabled={saving} className="btn-primary text-sm disabled:opacity-60 w-full sm:w-auto justify-center">
+                {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+                {saving ? 'Saving...' : 'Save Changes'}
+              </button>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
   );

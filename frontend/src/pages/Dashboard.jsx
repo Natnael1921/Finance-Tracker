@@ -35,15 +35,11 @@ export default function Dashboard() {
       ]);
       setStats(statsRes.data.stats);
       setRecent(txRes.data.transactions);
-
-      // Build pie chart data from categories
       const catMap = {};
       txRes.data.transactions.forEach((t) => {
         catMap[t.category] = (catMap[t.category] || 0) + t.amount;
       });
-      setPieData(
-        Object.entries(catMap).map(([name, value]) => ({ name, value }))
-      );
+      setPieData(Object.entries(catMap).map(([name, value]) => ({ name, value })));
     } catch (err) {
       console.error('Dashboard fetch error:', err);
     } finally {
@@ -54,7 +50,6 @@ export default function Dashboard() {
   const fetchChart = useCallback(async () => {
     try {
       const { data } = await api.get('/transactions?limit=30');
-      // Group by date for area chart
       const grouped = {};
       data.transactions.forEach((t) => {
         const date = new Date(t.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
@@ -68,12 +63,8 @@ export default function Dashboard() {
     }
   }, []);
 
-  useEffect(() => {
-    fetchData();
-    fetchChart();
-  }, [fetchData, fetchChart]);
+  useEffect(() => { fetchData(); fetchChart(); }, [fetchData, fetchChart]);
 
-  // Real-time updates
   useEffect(() => {
     if (!socket) return;
     const refresh = () => { fetchData(); fetchChart(); };
@@ -102,40 +93,40 @@ export default function Dashboard() {
   return (
     <Layout>
       {/* Header */}
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 sm:mb-8 gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-base-50">
+          <h1 className="text-xl sm:text-2xl font-bold text-base-50">
             Good {new Date().getHours() < 12 ? 'morning' : new Date().getHours() < 18 ? 'afternoon' : 'evening'},{' '}
-            <span className="text-accent-400">{user?.name?.split(' ')[0]}</span> 
+            <span className="text-accent-400">{user?.name?.split(' ')[0]}</span>
           </h1>
           <p className="text-base-400 text-sm mt-0.5">Here's your financial overview</p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2">
           <button onClick={() => { fetchData(); fetchChart(); }} className="btn-ghost text-sm">
             <RefreshCw className="w-4 h-4" />
-            Refresh
+            <span className="hidden sm:inline">Refresh</span>
           </button>
           <Link to="/add-transaction" className="btn-primary text-sm">
             <Plus className="w-4 h-4" />
-            Add Entry
+            <span className="hidden sm:inline">Add Entry</span>
           </Link>
         </div>
       </div>
 
-      {/* Stat Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-        {/* Balance */}
-        <div className="stat-card col-span-1 sm:col-span-2 lg:col-span-1" style={{ borderColor: balance >= 0 ? 'rgba(34,197,94,0.2)' : 'rgba(239,68,68,0.2)' }}>
+      {/* Stat Cards — 2 cols on mobile, 4 on lg */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-8">
+        {/* Balance — full width on mobile */}
+        <div className="stat-card col-span-2 lg:col-span-1" style={{ borderColor: balance >= 0 ? 'rgba(34,197,94,0.2)' : 'rgba(239,68,68,0.2)' }}>
           <div className="flex items-start justify-between">
             <div>
               <p className="text-xs text-base-400 font-medium uppercase tracking-wider mb-2">Net Balance</p>
-              <p className={`text-3xl font-bold ${balance >= 0 ? 'text-accent-400' : 'text-red-400'}`}>
+              <p className={`text-2xl sm:text-3xl font-bold ${balance >= 0 ? 'text-accent-400' : 'text-red-400'}`}>
                 {fmt(balance)}
               </p>
-              <p className="text-xs text-base-500 mt-1">{stats?.totalTransactions || 0} total transactions</p>
+              <p className="text-xs text-base-500 mt-1">{stats?.totalTransactions || 0} transactions</p>
             </div>
-            <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${balance >= 0 ? 'bg-accent-900/40 border border-accent-800/40' : 'bg-red-900/40 border border-red-800/40'}`}>
-              <Wallet className={`w-5 h-5 ${balance >= 0 ? 'text-accent-400' : 'text-red-400'}`} />
+            <div className={`w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center shrink-0 ${balance >= 0 ? 'bg-accent-900/40 border border-accent-800/40' : 'bg-red-900/40 border border-red-800/40'}`}>
+              <Wallet className={`w-4 h-4 sm:w-5 sm:h-5 ${balance >= 0 ? 'text-accent-400' : 'text-red-400'}`} />
             </div>
           </div>
         </div>
@@ -144,14 +135,14 @@ export default function Dashboard() {
         <div className="stat-card">
           <div className="flex items-start justify-between">
             <div>
-              <p className="text-xs text-base-400 font-medium uppercase tracking-wider mb-2">Total Income</p>
-              <p className="text-2xl font-bold text-accent-400">{fmt(stats?.totalIncome || 0)}</p>
+              <p className="text-[10px] sm:text-xs text-base-400 font-medium uppercase tracking-wider mb-2">Income</p>
+              <p className="text-lg sm:text-2xl font-bold text-accent-400">{fmt(stats?.totalIncome || 0)}</p>
             </div>
-            <div className="w-10 h-10 rounded-xl bg-accent-900/40 border border-accent-800/40 flex items-center justify-center">
-              <TrendingUp className="w-5 h-5 text-accent-400" />
+            <div className="w-9 h-9 rounded-xl bg-accent-900/40 border border-accent-800/40 flex items-center justify-center shrink-0">
+              <TrendingUp className="w-4 h-4 text-accent-400" />
             </div>
           </div>
-          <div className="mt-3 flex items-center gap-1 text-xs text-accent-500">
+          <div className="mt-2 sm:mt-3 flex items-center gap-1 text-xs text-accent-500">
             <ArrowUpRight className="w-3 h-3" />
             <span>All time</span>
           </div>
@@ -161,14 +152,14 @@ export default function Dashboard() {
         <div className="stat-card">
           <div className="flex items-start justify-between">
             <div>
-              <p className="text-xs text-base-400 font-medium uppercase tracking-wider mb-2">Total Expense</p>
-              <p className="text-2xl font-bold text-red-400">{fmt(stats?.totalExpense || 0)}</p>
+              <p className="text-[10px] sm:text-xs text-base-400 font-medium uppercase tracking-wider mb-2">Expense</p>
+              <p className="text-lg sm:text-2xl font-bold text-red-400">{fmt(stats?.totalExpense || 0)}</p>
             </div>
-            <div className="w-10 h-10 rounded-xl bg-red-900/40 border border-red-800/40 flex items-center justify-center">
-              <TrendingDown className="w-5 h-5 text-red-400" />
+            <div className="w-9 h-9 rounded-xl bg-red-900/40 border border-red-800/40 flex items-center justify-center shrink-0">
+              <TrendingDown className="w-4 h-4 text-red-400" />
             </div>
           </div>
-          <div className="mt-3 flex items-center gap-1 text-xs text-red-500/70">
+          <div className="mt-2 sm:mt-3 flex items-center gap-1 text-xs text-red-500/70">
             <ArrowUpRight className="w-3 h-3 rotate-90" />
             <span>All time</span>
           </div>
@@ -178,21 +169,20 @@ export default function Dashboard() {
         <div className="stat-card">
           <div className="flex items-start justify-between">
             <div>
-              <p className="text-xs text-base-400 font-medium uppercase tracking-wider mb-2">Pending Debt</p>
-              <p className="text-2xl font-bold text-amber-400">{fmt(stats?.pendingBorrow || 0)}</p>
+              <p className="text-[10px] sm:text-xs text-base-400 font-medium uppercase tracking-wider mb-2">Debt</p>
+              <p className="text-lg sm:text-2xl font-bold text-amber-400">{fmt(stats?.pendingBorrow || 0)}</p>
               <p className="text-xs text-base-500 mt-1">{stats?.pendingBorrowCount || 0} open loans</p>
             </div>
-            <div className="w-10 h-10 rounded-xl bg-amber-900/40 border border-amber-800/40 flex items-center justify-center">
-              <AlertTriangle className="w-5 h-5 text-amber-400" />
+            <div className="w-9 h-9 rounded-xl bg-amber-900/40 border border-amber-800/40 flex items-center justify-center shrink-0">
+              <AlertTriangle className="w-4 h-4 text-amber-400" />
             </div>
           </div>
         </div>
       </div>
 
-      {/* Charts row */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-        {/* Area Chart */}
-        <div className="glass p-6 lg:col-span-2">
+      {/* Charts */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8">
+        <div className="glass p-4 sm:p-6 lg:col-span-2">
           <h2 className="text-sm font-semibold text-base-200 mb-4">Income vs Expense (Recent)</h2>
           {chartData.length > 0 ? (
             <ResponsiveContainer width="100%" height={200}>
@@ -208,8 +198,8 @@ export default function Dashboard() {
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" />
-                <XAxis dataKey="date" tick={{ fill: '#888', fontSize: 11 }} axisLine={false} tickLine={false} />
-                <YAxis tick={{ fill: '#888', fontSize: 11 }} axisLine={false} tickLine={false} tickFormatter={(v) => `$${v}`} />
+                <XAxis dataKey="date" tick={{ fill: '#888', fontSize: 10 }} axisLine={false} tickLine={false} />
+                <YAxis tick={{ fill: '#888', fontSize: 10 }} axisLine={false} tickLine={false} tickFormatter={(v) => `$${v}`} width={45} />
                 <Tooltip
                   contentStyle={{ background: '#1a1a1a', border: '1px solid #2d2d2d', borderRadius: '12px', fontSize: '12px' }}
                   labelStyle={{ color: '#d4d4d4' }}
@@ -224,8 +214,7 @@ export default function Dashboard() {
           )}
         </div>
 
-        {/* Pie Chart */}
-        <div className="glass p-6">
+        <div className="glass p-4 sm:p-6">
           <h2 className="text-sm font-semibold text-base-200 mb-4">By Category</h2>
           {pieData.length > 0 ? (
             <div className="flex flex-col items-center">
@@ -242,10 +231,10 @@ export default function Dashboard() {
                   />
                 </PieChart>
               </ResponsiveContainer>
-              <div className="flex flex-wrap justify-center gap-x-4 gap-y-1.5 mt-2">
+              <div className="flex flex-wrap justify-center gap-x-3 gap-y-1.5 mt-2">
                 {pieData.map((d, i) => (
                   <div key={i} className="flex items-center gap-1.5 text-xs text-base-400">
-                    <div className="w-2 h-2 rounded-full" style={{ background: CATEGORY_COLORS[i % CATEGORY_COLORS.length] }} />
+                    <div className="w-2 h-2 rounded-full shrink-0" style={{ background: CATEGORY_COLORS[i % CATEGORY_COLORS.length] }} />
                     {d.name}
                   </div>
                 ))}
@@ -259,54 +248,82 @@ export default function Dashboard() {
 
       {/* Recent Transactions */}
       <div className="glass overflow-hidden">
-        <div className="flex items-center justify-between px-6 py-4 border-b border-base-800">
+        <div className="flex items-center justify-between px-4 sm:px-6 py-4 border-b border-base-800">
           <h2 className="text-sm font-semibold text-base-200">Recent Transactions</h2>
           <Link to="/transactions" className="text-xs text-accent-500 hover:text-accent-400 font-medium transition-colors">
             View all →
           </Link>
         </div>
+
         {recent.length === 0 ? (
           <div className="py-12 text-center text-base-500 text-sm">
             No transactions yet.{' '}
             <Link to="/add-transaction" className="text-accent-500 hover:underline">Add one now.</Link>
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="border-b border-base-800/60">
-                <tr>
-                  {['Type', 'Amount', 'Category', 'Cash Source', 'By', 'Date'].map((h) => (
-                    <th key={h} className="table-header">{h}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {recent.map((t) => (
-                  <tr key={t._id} className="table-row">
-                    <td className="table-cell">
-                      <span className={t.type === 'income' ? 'badge-income' : 'badge-expense'}>
-                        {t.type === 'income' ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
-                        {t.type}
-                      </span>
-                    </td>
-                    <td className="table-cell">
-                      <span className={`font-semibold ${t.type === 'income' ? 'text-accent-400' : 'text-red-400'}`}>
-                        {t.type === 'expense' ? '-' : '+'}{fmt(t.amount)}
-                      </span>
-                    </td>
-                    <td className="table-cell text-base-300">{t.category}</td>
-                    <td className="table-cell">
-                      <span className={`badge-${t.cashSource}`}>{t.cashSource}</span>
-                    </td>
-                    <td className="table-cell text-base-400">{t.createdBy?.name}</td>
-                    <td className="table-cell text-base-500 text-xs">
-                      {new Date(t.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
-                    </td>
+          <>
+            {/* Desktop table */}
+            <div className="hidden md:block overflow-x-auto">
+              <table className="w-full">
+                <thead className="border-b border-base-800/60">
+                  <tr>
+                    {['Type', 'Amount', 'Category', 'Cash Source', 'By', 'Date'].map((h) => (
+                      <th key={h} className="table-header">{h}</th>
+                    ))}
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody>
+                  {recent.map((t) => (
+                    <tr key={t._id} className="table-row">
+                      <td className="table-cell">
+                        <span className={t.type === 'income' ? 'badge-income' : 'badge-expense'}>
+                          {t.type === 'income' ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
+                          {t.type}
+                        </span>
+                      </td>
+                      <td className="table-cell">
+                        <span className={`font-semibold ${t.type === 'income' ? 'text-accent-400' : 'text-red-400'}`}>
+                          {t.type === 'expense' ? '-' : '+'}{fmt(t.amount)}
+                        </span>
+                      </td>
+                      <td className="table-cell text-base-300">{t.category}</td>
+                      <td className="table-cell">
+                        <span className={`badge-${t.cashSource}`}>{t.cashSource}</span>
+                      </td>
+                      <td className="table-cell text-base-400">{t.createdBy?.name}</td>
+                      <td className="table-cell text-base-500 text-xs">
+                        {new Date(t.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Mobile card list */}
+            <div className="md:hidden divide-y divide-base-800/60">
+              {recent.map((t) => (
+                <div key={t._id} className="p-4 flex flex-col gap-2.5">
+                  <div className="flex items-center justify-between">
+                    <span className={t.type === 'income' ? 'badge-income' : 'badge-expense'}>
+                      {t.type === 'income' ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
+                      {t.type}
+                    </span>
+                    <span className={`font-bold text-base ${t.type === 'income' ? 'text-accent-400' : 'text-red-400'}`}>
+                      {t.type === 'expense' ? '-' : '+'}{fmt(t.amount)}
+                    </span>
+                  </div>
+                  <p className="text-sm font-medium text-base-200">{t.category}</p>
+                  <div className="flex items-center justify-between">
+                    <span className={`badge-${t.cashSource}`}>{t.cashSource}</span>
+                    <span className="text-xs text-base-500">
+                      {new Date(t.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </>
         )}
       </div>
     </Layout>

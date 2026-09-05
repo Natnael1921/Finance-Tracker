@@ -27,7 +27,6 @@ export default function Transactions() {
     setLoading(true);
     try {
       const params = new URLSearchParams({ page, limit: 15, ...filters });
-      // Remove empty params
       ['type', 'cashSource', 'search'].forEach((k) => { if (!filters[k]) params.delete(k); });
       const { data } = await api.get(`/transactions?${params}`);
       setTransactions(data.transactions);
@@ -41,11 +40,8 @@ export default function Transactions() {
   }, [page, filters]);
 
   useEffect(() => { fetchTransactions(); }, [fetchTransactions]);
-
-  // Reset to page 1 when filters change
   useEffect(() => { setPage(1); }, [filters]);
 
-  // Real-time sync
   useEffect(() => {
     if (!socket) return;
     socket.on('transaction-added', fetchTransactions);
@@ -77,64 +73,67 @@ export default function Transactions() {
   return (
     <Layout>
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-5 sm:mb-6 gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-base-50">Transactions</h1>
+          <h1 className="text-xl sm:text-2xl font-bold text-base-50">Transactions</h1>
           <p className="text-base-400 text-sm mt-0.5">{total} total entries</p>
         </div>
-        <Link to="/add-transaction" className="btn-primary text-sm">
-          <Plus className="w-4 h-4" /> Add Entry
+        <Link to="/add-transaction" className="btn-primary text-sm self-start sm:self-auto">
+          <Plus className="w-4 h-4" />
+          <span>Add Entry</span>
         </Link>
       </div>
 
       {/* Filters */}
-      <div className="glass p-4 mb-5 flex flex-wrap gap-3 items-center">
-        {/* Search */}
-        <div className="relative flex-1 min-w-[200px]">
+      <div className="glass p-4 mb-5 flex flex-col sm:flex-row flex-wrap gap-3 sm:items-center">
+        {/* Search — full width on mobile */}
+        <div className="relative w-full sm:flex-1 sm:min-w-[200px]">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-base-500" />
           <input
             type="text"
             placeholder="Search category, description..."
             value={filters.search}
             onChange={(e) => setFilters((f) => ({ ...f, search: e.target.value }))}
-            className="input pl-9 py-2.5 text-sm"
+            className="input pl-9 py-2.5 text-sm w-full"
           />
         </div>
 
-        {/* Type filter */}
-        <div className="flex items-center gap-1.5">
-          <Filter className="w-4 h-4 text-base-500" />
+        <div className="flex gap-3 flex-wrap">
+          {/* Type filter */}
+          <div className="flex items-center gap-1.5 flex-1 sm:flex-none">
+            <Filter className="w-4 h-4 text-base-500 shrink-0" />
+            <select
+              value={filters.type}
+              onChange={(e) => setFilters((f) => ({ ...f, type: e.target.value }))}
+              className="select text-sm py-2.5 flex-1 sm:min-w-[130px]"
+            >
+              <option value="">All Types</option>
+              <option value="income">Income</option>
+              <option value="expense">Expense</option>
+            </select>
+          </div>
+
+          {/* Source filter */}
           <select
-            value={filters.type}
-            onChange={(e) => setFilters((f) => ({ ...f, type: e.target.value }))}
-            className="select text-sm py-2.5 min-w-[130px]"
+            value={filters.cashSource}
+            onChange={(e) => setFilters((f) => ({ ...f, cashSource: e.target.value }))}
+            className="select text-sm py-2.5 flex-1 sm:min-w-[150px]"
           >
-            <option value="">All Types</option>
-            <option value="income">Income</option>
-            <option value="expense">Expense</option>
+            <option value="">All Sources</option>
+            <option value="personal">Personal</option>
+            <option value="company">Company</option>
+            <option value="borrowed">Borrowed</option>
           </select>
+
+          {hasFilters && (
+            <button onClick={clearFilters} className="btn-ghost text-sm text-base-400">
+              <X className="w-3.5 h-3.5" /> Clear
+            </button>
+          )}
         </div>
-
-        {/* Cash source filter */}
-        <select
-          value={filters.cashSource}
-          onChange={(e) => setFilters((f) => ({ ...f, cashSource: e.target.value }))}
-          className="select text-sm py-2.5 min-w-[150px]"
-        >
-          <option value="">All Sources</option>
-          <option value="personal">Personal</option>
-          <option value="company">Company</option>
-          <option value="borrowed">Borrowed</option>
-        </select>
-
-        {hasFilters && (
-          <button onClick={clearFilters} className="btn-ghost text-sm text-base-400">
-            <X className="w-3.5 h-3.5" /> Clear
-          </button>
-        )}
       </div>
 
-      {/* Table */}
+      {/* Content */}
       <div className="glass overflow-hidden">
         {loading ? (
           <div className="flex items-center justify-center py-16">
@@ -146,83 +145,115 @@ export default function Transactions() {
             <Link to="/add-transaction" className="text-accent-500 hover:underline">Add one now.</Link>
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="border-b border-base-800">
-                <tr>
-                  {['Type', 'Amount', 'Category', 'Reason', 'Source', 'By', 'Date', ''].map((h) => (
-                    <th key={h} className="table-header">{h}</th>
+          <>
+            {/* Desktop table — md and up */}
+            <div className="hidden md:block overflow-x-auto">
+              <table className="w-full">
+                <thead className="border-b border-base-800">
+                  <tr>
+                    {['Type', 'Amount', 'Category', 'Reason', 'Source', 'By', 'Date', ''].map((h) => (
+                      <th key={h} className="table-header">{h}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {transactions.map((t) => (
+                    <tr key={t._id} className="table-row animate-fade-in">
+                      <td className="table-cell">
+                        <span className={t.type === 'income' ? 'badge-income' : 'badge-expense'}>
+                          {t.type === 'income' ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
+                          {t.type}
+                        </span>
+                      </td>
+                      <td className="table-cell">
+                        <span className={`font-semibold ${t.type === 'income' ? 'text-accent-400' : 'text-red-400'}`}>
+                          {t.type === 'expense' ? '-' : '+'}{fmt(t.amount)}
+                        </span>
+                      </td>
+                      <td className="table-cell font-medium text-base-200">{t.category}</td>
+                      <td className="table-cell text-base-400 max-w-[150px] truncate">{t.reason || '—'}</td>
+                      <td className="table-cell">
+                        <span className={`badge-${t.cashSource}`}>{t.cashSource}</span>
+                      </td>
+                      <td className="table-cell text-base-400 text-xs">{t.createdBy?.name}</td>
+                      <td className="table-cell text-base-500 text-xs whitespace-nowrap">
+                        {new Date(t.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: '2-digit' })}
+                      </td>
+                      <td className="table-cell">
+                        <div className="flex items-center gap-1">
+                          <button onClick={() => setEditingTx(t)} className="btn-ghost p-2 text-base-500 hover:text-base-200">
+                            <Pencil className="w-3.5 h-3.5" />
+                          </button>
+                          <button
+                            onClick={() => handleDelete(t._id)}
+                            disabled={deleting === t._id}
+                            className="btn-ghost p-2 text-base-500 hover:text-red-400"
+                          >
+                            {deleting === t._id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Trash2 className="w-3.5 h-3.5" />}
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
                   ))}
-                </tr>
-              </thead>
-              <tbody>
-                {transactions.map((t) => (
-                  <tr key={t._id} className="table-row animate-fade-in">
-                    <td className="table-cell">
+                </tbody>
+              </table>
+            </div>
+
+            {/* Mobile card list */}
+            <div className="md:hidden divide-y divide-base-800">
+              {transactions.map((t) => (
+                <div key={t._id} className="p-4 flex flex-col gap-2.5 animate-fade-in">
+                  {/* Row 1: type + amount + actions */}
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
                       <span className={t.type === 'income' ? 'badge-income' : 'badge-expense'}>
                         {t.type === 'income' ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
                         {t.type}
                       </span>
-                    </td>
-                    <td className="table-cell">
-                      <span className={`font-semibold ${t.type === 'income' ? 'text-accent-400' : 'text-red-400'}`}>
+                      <span className={`font-bold ${t.type === 'income' ? 'text-accent-400' : 'text-red-400'}`}>
                         {t.type === 'expense' ? '-' : '+'}{fmt(t.amount)}
                       </span>
-                    </td>
-                    <td className="table-cell font-medium text-base-200">{t.category}</td>
-                    <td className="table-cell text-base-400 max-w-[150px] truncate">{t.reason || '—'}</td>
-                    <td className="table-cell">
-                      <span className={`badge-${t.cashSource}`}>{t.cashSource}</span>
-                    </td>
-                    <td className="table-cell text-base-400 text-xs">{t.createdBy?.name}</td>
-                    <td className="table-cell text-base-500 text-xs whitespace-nowrap">
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <button onClick={() => setEditingTx(t)} className="btn-ghost p-1.5 text-base-500 hover:text-base-200">
+                        <Pencil className="w-4 h-4" />
+                      </button>
+                      <button
+                        onClick={() => handleDelete(t._id)}
+                        disabled={deleting === t._id}
+                        className="btn-ghost p-1.5 text-base-500 hover:text-red-400"
+                      >
+                        {deleting === t._id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
+                      </button>
+                    </div>
+                  </div>
+                  {/* Row 2: category + source */}
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium text-base-200">{t.category}</span>
+                    <span className={`badge-${t.cashSource}`}>{t.cashSource}</span>
+                  </div>
+                  {/* Row 3: reason + date */}
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs text-base-400 truncate max-w-[55%]">{t.reason || '—'}</span>
+                    <span className="text-xs text-base-500 whitespace-nowrap">
                       {new Date(t.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: '2-digit' })}
-                    </td>
-                    <td className="table-cell">
-                      <div className="flex items-center gap-1">
-                        <button
-                          onClick={() => setEditingTx(t)}
-                          className="btn-ghost p-2 text-base-500 hover:text-base-200"
-                        >
-                          <Pencil className="w-3.5 h-3.5" />
-                        </button>
-                        <button
-                          onClick={() => handleDelete(t._id)}
-                          disabled={deleting === t._id}
-                          className="btn-ghost p-2 text-base-500 hover:text-red-400"
-                        >
-                          {deleting === t._id ? (
-                            <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                          ) : (
-                            <Trash2 className="w-3.5 h-3.5" />
-                          )}
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </>
         )}
 
         {/* Pagination */}
         {totalPages > 1 && (
-          <div className="flex items-center justify-between px-6 py-4 border-t border-base-800">
+          <div className="flex items-center justify-between px-4 sm:px-6 py-4 border-t border-base-800">
             <span className="text-xs text-base-500">Page {page} of {totalPages}</span>
             <div className="flex items-center gap-2">
-              <button
-                onClick={() => setPage((p) => Math.max(1, p - 1))}
-                disabled={page === 1}
-                className="btn-ghost p-2 disabled:opacity-40"
-              >
+              <button onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page === 1} className="btn-ghost p-2 disabled:opacity-40">
                 <ChevronLeft className="w-4 h-4" />
               </button>
-              <button
-                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                disabled={page === totalPages}
-                className="btn-ghost p-2 disabled:opacity-40"
-              >
+              <button onClick={() => setPage((p) => Math.min(totalPages, p + 1))} disabled={page === totalPages} className="btn-ghost p-2 disabled:opacity-40">
                 <ChevronRight className="w-4 h-4" />
               </button>
             </div>
@@ -230,7 +261,6 @@ export default function Transactions() {
         )}
       </div>
 
-      {/* Edit Modal */}
       {editingTx && (
         <EditTransactionModal
           transaction={editingTx}
