@@ -347,29 +347,64 @@ export default function Dashboard() {
               </table>
             </div>
 
-            {/* Mobile card list */}
-            <div className="md:hidden divide-y divide-base-800/60">
-              {recent.map((t) => (
-                <div key={t._id} className="p-4 flex flex-col gap-2.5">
-                  <div className="flex items-center justify-between">
-                    <span className={t.type === 'income' ? 'badge-income' : 'badge-expense'}>
-                      {t.type === 'income' ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
-                      {t.type}
-                    </span>
-                    <span className={`font-bold text-base ${t.type === 'income' ? 'text-accent-400' : 'text-red-400'}`}>
-                      {t.type === 'expense' ? '-' : '+'}{fmt(t.amount)}
-                    </span>
+            {/* Mobile card list — same premium style as Transactions page */}
+            <div className="md:hidden flex flex-col">
+              {recent.map((t) => {
+                const isIncome = t.type === 'income';
+                return (
+                  <div
+                    key={t._id}
+                    className="relative flex items-stretch"
+                    style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}
+                  >
+                    {/* Colored left border strip */}
+                    <div
+                      className="w-1 shrink-0 rounded-r-full my-3"
+                      style={{ background: isIncome ? '#22c55e' : '#ef4444' }}
+                    />
+
+                    {/* Content */}
+                    <div className="flex-1 px-4 py-3.5">
+                      {/* Top: icon + category + amount */}
+                      <div className="flex items-center gap-3">
+                        <div
+                          className="w-9 h-9 rounded-full flex items-center justify-center shrink-0"
+                          style={{
+                            background: isIncome ? 'rgba(34,197,94,0.12)' : 'rgba(239,68,68,0.12)',
+                            border: `1px solid ${isIncome ? 'rgba(34,197,94,0.25)' : 'rgba(239,68,68,0.25)'}`,
+                          }}
+                        >
+                          {isIncome
+                            ? <TrendingUp className="w-4 h-4 text-accent-400" />
+                            : <TrendingDown className="w-4 h-4 text-red-400" />
+                          }
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-semibold text-base-100 truncate">{t.category}</p>
+                          {t.createdBy?.name && (
+                            <p className="text-[11px] text-base-500 mt-0.5">by {t.createdBy.name}</p>
+                          )}
+                        </div>
+                        <div className="text-right shrink-0">
+                          <p className={`text-sm font-bold ${isIncome ? 'text-accent-400' : 'text-red-400'}`}>
+                            {isIncome ? '+' : '-'}{fmt(t.amount)}
+                          </p>
+                          <p className="text-[10px] text-base-500 mt-0.5">
+                            {new Date(t.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Bottom: source badge */}
+                      <div className="mt-2.5 pl-12">
+                        <span className={`badge-${t.cashSource}`}>{t.cashSource}</span>
+                      </div>
+                    </div>
                   </div>
-                  <p className="text-sm font-medium text-base-200">{t.category}</p>
-                  <div className="flex items-center justify-between">
-                    <span className={`badge-${t.cashSource}`}>{t.cashSource}</span>
-                    <span className="text-xs text-base-500">
-                      {new Date(t.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
-                    </span>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
+
           </>
         )}
       </div>
