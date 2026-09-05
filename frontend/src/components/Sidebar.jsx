@@ -27,12 +27,12 @@ function DesktopSidebar({ user, connected, isSuperAdmin, handleLogout }) {
     <aside className="hidden lg:flex flex-col w-64 min-h-screen bg-base-900 border-r border-base-800 px-4 py-6 shrink-0">
       {/* Logo */}
       <div className="flex items-center gap-3 px-2 mb-8">
-        <div className="w-9 h-9 rounded-xl bg-accent-500 flex items-center justify-center shadow-green">
-          <TrendingUp className="w-5 h-5 text-base-black" />
+        <div className="w-10 h-10 rounded-xl overflow-hidden border border-accent-700/40 shrink-0">
+          <img src="/icon-192.png" alt="BE Logo" className="w-full h-full object-cover" />
         </div>
         <div>
-          <p className="font-bold text-base-50 text-sm leading-tight">Finance</p>
-          <p className="text-accent-400 text-xs font-semibold tracking-widest uppercase">Tracker</p>
+          <p className="font-bold text-base-50 text-sm leading-tight">Big Ethiopia</p>
+          <p className="text-accent-400 text-[10px] font-semibold tracking-widest uppercase">Finance Tracker</p>
         </div>
       </div>
 
@@ -123,12 +123,12 @@ function MobileDrawer({ open, onClose, user, connected, isSuperAdmin, handleLogo
         {/* Logo + close */}
         <div className="flex items-center justify-between mb-8 px-2">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-accent-500 flex items-center justify-center shadow-green">
-              <TrendingUp className="w-5 h-5 text-base-black" />
+            <div className="w-10 h-10 rounded-xl overflow-hidden border border-accent-700/40 shrink-0">
+              <img src="/icon-192.png" alt="BE Logo" className="w-full h-full object-cover" />
             </div>
             <div>
-              <p className="font-bold text-base-50 text-sm leading-tight">Finance</p>
-              <p className="text-accent-400 text-xs font-semibold tracking-widest uppercase">Tracker</p>
+              <p className="font-bold text-base-50 text-sm leading-tight">Big Ethiopia</p>
+              <p className="text-accent-400 text-[10px] font-semibold tracking-widest uppercase">Finance Tracker</p>
             </div>
           </div>
           <button onClick={onClose} className="btn-ghost p-2 text-base-400">

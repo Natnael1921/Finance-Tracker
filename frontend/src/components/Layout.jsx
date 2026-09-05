@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { Menu, TrendingUp } from 'lucide-react';
+import { Menu } from 'lucide-react';
 import Sidebar from './Sidebar';
+
 
 export default function Layout({ children }) {
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -21,10 +22,10 @@ export default function Layout({ children }) {
             <Menu className="w-5 h-5" />
           </button>
           <div className="flex items-center gap-2">
-            <div className="w-7 h-7 rounded-lg bg-accent-500 flex items-center justify-center">
-              <TrendingUp className="w-4 h-4 text-black" />
+            <div className="w-7 h-7 rounded-lg overflow-hidden border border-accent-700/30">
+              <img src="/icon-192.png" alt="BE" className="w-full h-full object-cover" />
             </div>
-            <span className="font-bold text-base-50 text-sm">Finance Tracker</span>
+            <span className="font-bold text-base-50 text-sm">BigEth Tracker</span>
           </div>
           <div className="w-9" /> {/* spacer */}
         </header>

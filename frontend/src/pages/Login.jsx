@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { TrendingUp, Eye, EyeOff, Loader2, AlertCircle } from 'lucide-react';
+import { Eye, EyeOff, Loader2, AlertCircle } from 'lucide-react';
+
 import { useAuth } from '../context/AuthContext';
 
 export default function Login() {
@@ -51,11 +52,12 @@ export default function Login() {
       <div className="relative w-full max-w-md animate-slide-up">
         {/* Header */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-accent-500/10 border border-accent-500/20 rounded-2xl mb-4 shadow-green">
-            <TrendingUp className="w-8 h-8 text-accent-500" />
+          <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl mb-4 overflow-hidden border border-accent-700/30 shadow-green">
+            <img src="/icon-192.png" alt="Big Ethiopia Finance Tracker" className="w-full h-full object-cover" />
           </div>
-          <h1 className="text-2xl font-bold text-base-50">Finance Tracker</h1>
-          <p className="text-base-400 text-sm mt-1">Multi-admin finance management system</p>
+          <h1 className="text-2xl font-bold text-base-50">Big Ethiopia</h1>
+          <p className="text-accent-400 text-sm font-semibold tracking-widest uppercase mt-0.5">Finance Tracker</p>
+          <p className="text-base-500 text-xs mt-2">Multi-admin finance management system</p>
         </div>
 
         {/* Card */}

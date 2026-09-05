@@ -2,10 +2,41 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Finance Tracker – Multi-admin real-time income and expense management system" />
-    <title>Finance Tracker</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+
+    <!-- Primary Meta -->
+    <title>Big Ethiopia Finance Tracker</title>
+    <meta name="description" content="BigEth Tracker – Multi-admin real-time income and expense management for Big Ethiopia." />
+    <meta name="keywords" content="finance tracker, big ethiopia, expense, income, management" />
+    <meta name="author" content="Big Ethiopia" />
+
+    <!-- Theme -->
+    <meta name="theme-color" content="#22c55e" />
+    <meta name="color-scheme" content="dark" />
+    <meta name="msapplication-TileColor" content="#0d0d0d" />
+    <meta name="msapplication-TileImage" content="/icon-192.png" />
+
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/manifest.json" />
+
+    <!-- Icons -->
+    <link rel="icon" type="image/png" sizes="512x512" href="/icon-512.png" />
+    <link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+
+    <!-- iOS PWA -->
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="BigEth Tracker" />
+    <meta name="mobile-web-app-capable" content="yes" />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Big Ethiopia Finance Tracker" />
+    <meta property="og:description" content="Multi-admin real-time income and expense management." />
+    <meta property="og:image" content="/icon-512.png" />
+
+    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
@@ -13,5 +44,16 @@
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
+
+    <!-- Register Service Worker -->
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js')
+            .then((reg) => console.log('[SW] Registered:', reg.scope))
+            .catch((err) => console.warn('[SW] Registration failed:', err));
+        });
+      }
+    </script>
   </body>
 </html>
