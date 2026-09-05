@@ -92,92 +92,139 @@ export default function Dashboard() {
 
   return (
     <Layout>
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 sm:mb-8 gap-3">
-        <div>
-          <h1 className="text-xl sm:text-2xl font-bold text-base-50">
-            Good {new Date().getHours() < 12 ? 'morning' : new Date().getHours() < 18 ? 'afternoon' : 'evening'},{' '}
-            <span className="text-accent-400">{user?.name?.split(' ')[0]}</span>
-          </h1>
-          <p className="text-base-400 text-sm mt-0.5">Here's your financial overview</p>
-        </div>
-        <div className="flex items-center gap-2">
-          <button onClick={() => { fetchData(); fetchChart(); }} className="btn-ghost text-sm">
-            <RefreshCw className="w-4 h-4" />
-            <span className="hidden sm:inline">Refresh</span>
-          </button>
-          <Link to="/add-transaction" className="btn-primary text-sm">
-            <Plus className="w-4 h-4" />
-            <span className="hidden sm:inline">Add Entry</span>
-          </Link>
+      {/* ── Hero Header ─────────────────────────────────────────────── */}
+      <div className="relative rounded-2xl overflow-hidden mb-6 sm:mb-8 p-5 sm:p-7"
+        style={{
+          background: 'linear-gradient(135deg, rgba(34,197,94,0.08) 0%, rgba(13,13,13,0) 60%)',
+          border: '1px solid rgba(34,197,94,0.12)',
+        }}
+      >
+        {/* Decorative glow blob */}
+        <div className="absolute -top-10 -left-10 w-48 h-48 rounded-full pointer-events-none"
+          style={{ background: 'radial-gradient(circle, rgba(34,197,94,0.08) 0%, transparent 70%)' }}
+        />
+
+        <div className="flex items-start justify-between gap-3 relative z-10">
+          <div>
+            <p className="text-xs text-accent-500 font-semibold uppercase tracking-widest mb-1">
+              {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
+            </p>
+            <h1 className="text-xl sm:text-2xl font-bold text-base-50 leading-tight">
+              Good {new Date().getHours() < 12 ? 'morning' : new Date().getHours() < 18 ? 'afternoon' : 'evening'},{' '}
+              <span className="text-accent-400">{user?.name?.split(' ')[0]}</span> 👋
+            </h1>
+            <p className="text-base-500 text-sm mt-1">Here's your financial overview</p>
+          </div>
+
+          <div className="flex items-center gap-2 shrink-0">
+            <button
+              onClick={() => { fetchData(); fetchChart(); }}
+              className="w-9 h-9 rounded-xl bg-base-800/80 border border-base-700 flex items-center justify-center text-base-400 hover:text-accent-400 hover:border-accent-800 transition-all"
+              title="Refresh"
+            >
+              <RefreshCw className="w-4 h-4" />
+            </button>
+            <Link
+              to="/add-transaction"
+              className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-semibold transition-all"
+              style={{
+                background: 'rgba(34,197,94,0.15)',
+                border: '1px solid rgba(34,197,94,0.3)',
+                color: '#4ade80',
+                boxShadow: '0 0 16px rgba(34,197,94,0.15)',
+              }}
+            >
+              <Plus className="w-4 h-4" />
+              <span className="hidden sm:inline">Add Entry</span>
+              <span className="sm:hidden">Add</span>
+            </Link>
+          </div>
         </div>
       </div>
 
-      {/* Stat Cards — 2 cols on mobile, 4 on lg */}
+      {/* ── Stat Cards ─────────────────────────────────────────────── */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-8">
-        {/* Balance — full width on mobile */}
-        <div className="stat-card col-span-2 lg:col-span-1" style={{ borderColor: balance >= 0 ? 'rgba(34,197,94,0.2)' : 'rgba(239,68,68,0.2)' }}>
-          <div className="flex items-start justify-between">
+
+        {/* Balance — spans full width on mobile */}
+        <div
+          className="col-span-2 lg:col-span-1 rounded-2xl p-5 relative overflow-hidden"
+          style={{
+            background: balance >= 0
+              ? 'linear-gradient(135deg, rgba(34,197,94,0.1), rgba(26,26,26,0.9))'
+              : 'linear-gradient(135deg, rgba(239,68,68,0.1), rgba(26,26,26,0.9))',
+            border: `1px solid ${balance >= 0 ? 'rgba(34,197,94,0.2)' : 'rgba(239,68,68,0.2)'}`,
+          }}
+        >
+          <div className="absolute -bottom-4 -right-4 w-24 h-24 rounded-full pointer-events-none"
+            style={{ background: balance >= 0 ? 'rgba(34,197,94,0.06)' : 'rgba(239,68,68,0.06)' }}
+          />
+          <div className="flex items-start justify-between relative z-10">
             <div>
-              <p className="text-xs text-base-400 font-medium uppercase tracking-wider mb-2">Net Balance</p>
-              <p className={`text-2xl sm:text-3xl font-bold ${balance >= 0 ? 'text-accent-400' : 'text-red-400'}`}>
+              <p className="text-[10px] sm:text-xs font-semibold uppercase tracking-widest mb-2"
+                style={{ color: balance >= 0 ? '#4ade80' : '#f87171', opacity: 0.8 }}
+              >Net Balance</p>
+              <p className={`text-2xl sm:text-3xl font-black ${balance >= 0 ? 'text-accent-400' : 'text-red-400'}`}>
                 {fmt(balance)}
               </p>
-              <p className="text-xs text-base-500 mt-1">{stats?.totalTransactions || 0} transactions</p>
+              <p className="text-xs text-base-500 mt-1.5">{stats?.totalTransactions || 0} transactions</p>
             </div>
-            <div className={`w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center shrink-0 ${balance >= 0 ? 'bg-accent-900/40 border border-accent-800/40' : 'bg-red-900/40 border border-red-800/40'}`}>
-              <Wallet className={`w-4 h-4 sm:w-5 sm:h-5 ${balance >= 0 ? 'text-accent-400' : 'text-red-400'}`} />
+            <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${balance >= 0 ? 'bg-accent-900/50 border border-accent-800/50' : 'bg-red-900/50 border border-red-800/50'}`}>
+              <Wallet className={`w-5 h-5 ${balance >= 0 ? 'text-accent-400' : 'text-red-400'}`} />
             </div>
           </div>
         </div>
 
         {/* Income */}
-        <div className="stat-card">
-          <div className="flex items-start justify-between">
-            <div>
-              <p className="text-[10px] sm:text-xs text-base-400 font-medium uppercase tracking-wider mb-2">Income</p>
-              <p className="text-lg sm:text-2xl font-bold text-accent-400">{fmt(stats?.totalIncome || 0)}</p>
-            </div>
-            <div className="w-9 h-9 rounded-xl bg-accent-900/40 border border-accent-800/40 flex items-center justify-center shrink-0">
+        <div className="rounded-2xl p-4 sm:p-5 relative overflow-hidden"
+          style={{ background: 'rgba(26,26,26,0.7)', border: '1px solid rgba(34,197,94,0.12)' }}
+        >
+          <div className="absolute bottom-0 left-0 right-0 h-0.5 rounded-full"
+            style={{ background: 'linear-gradient(90deg, #22c55e, transparent)' }}
+          />
+          <div className="flex items-start justify-between mb-3">
+            <div className="w-8 h-8 rounded-lg bg-accent-900/50 border border-accent-800/40 flex items-center justify-center">
               <TrendingUp className="w-4 h-4 text-accent-400" />
             </div>
+            <ArrowUpRight className="w-3.5 h-3.5 text-accent-600" />
           </div>
-          <div className="mt-2 sm:mt-3 flex items-center gap-1 text-xs text-accent-500">
-            <ArrowUpRight className="w-3 h-3" />
-            <span>All time</span>
-          </div>
+          <p className="text-[10px] text-base-500 font-semibold uppercase tracking-wider mb-1">Income</p>
+          <p className="text-lg sm:text-xl font-black text-accent-400">{fmt(stats?.totalIncome || 0)}</p>
         </div>
 
         {/* Expense */}
-        <div className="stat-card">
-          <div className="flex items-start justify-between">
-            <div>
-              <p className="text-[10px] sm:text-xs text-base-400 font-medium uppercase tracking-wider mb-2">Expense</p>
-              <p className="text-lg sm:text-2xl font-bold text-red-400">{fmt(stats?.totalExpense || 0)}</p>
-            </div>
-            <div className="w-9 h-9 rounded-xl bg-red-900/40 border border-red-800/40 flex items-center justify-center shrink-0">
+        <div className="rounded-2xl p-4 sm:p-5 relative overflow-hidden"
+          style={{ background: 'rgba(26,26,26,0.7)', border: '1px solid rgba(239,68,68,0.12)' }}
+        >
+          <div className="absolute bottom-0 left-0 right-0 h-0.5 rounded-full"
+            style={{ background: 'linear-gradient(90deg, #ef4444, transparent)' }}
+          />
+          <div className="flex items-start justify-between mb-3">
+            <div className="w-8 h-8 rounded-lg bg-red-900/50 border border-red-800/40 flex items-center justify-center">
               <TrendingDown className="w-4 h-4 text-red-400" />
             </div>
+            <ArrowUpRight className="w-3.5 h-3.5 text-red-700 rotate-90" />
           </div>
-          <div className="mt-2 sm:mt-3 flex items-center gap-1 text-xs text-red-500/70">
-            <ArrowUpRight className="w-3 h-3 rotate-90" />
-            <span>All time</span>
-          </div>
+          <p className="text-[10px] text-base-500 font-semibold uppercase tracking-wider mb-1">Expense</p>
+          <p className="text-lg sm:text-xl font-black text-red-400">{fmt(stats?.totalExpense || 0)}</p>
         </div>
 
-        {/* Borrowed */}
-        <div className="stat-card">
-          <div className="flex items-start justify-between">
-            <div>
-              <p className="text-[10px] sm:text-xs text-base-400 font-medium uppercase tracking-wider mb-2">Debt</p>
-              <p className="text-lg sm:text-2xl font-bold text-amber-400">{fmt(stats?.pendingBorrow || 0)}</p>
-              <p className="text-xs text-base-500 mt-1">{stats?.pendingBorrowCount || 0} open loans</p>
-            </div>
-            <div className="w-9 h-9 rounded-xl bg-amber-900/40 border border-amber-800/40 flex items-center justify-center shrink-0">
+        {/* Debt */}
+        <div className="rounded-2xl p-4 sm:p-5 relative overflow-hidden"
+          style={{ background: 'rgba(26,26,26,0.7)', border: '1px solid rgba(217,119,6,0.15)' }}
+        >
+          <div className="absolute bottom-0 left-0 right-0 h-0.5 rounded-full"
+            style={{ background: 'linear-gradient(90deg, #f59e0b, transparent)' }}
+          />
+          <div className="flex items-start justify-between mb-3">
+            <div className="w-8 h-8 rounded-lg bg-amber-900/50 border border-amber-800/40 flex items-center justify-center">
               <AlertTriangle className="w-4 h-4 text-amber-400" />
             </div>
+            <span className="text-[10px] text-amber-700 font-medium">{stats?.pendingBorrowCount || 0} open</span>
           </div>
+          <p className="text-[10px] text-base-500 font-semibold uppercase tracking-wider mb-1">Pending Debt</p>
+          <p className="text-lg sm:text-xl font-black text-amber-400">{fmt(stats?.pendingBorrow || 0)}</p>
         </div>
+
       </div>
 
       {/* Charts */}

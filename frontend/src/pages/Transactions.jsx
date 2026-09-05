@@ -200,48 +200,91 @@ export default function Transactions() {
             </div>
 
             {/* Mobile card list */}
-            <div className="md:hidden divide-y divide-base-800">
-              {transactions.map((t) => (
-                <div key={t._id} className="p-4 flex flex-col gap-2.5 animate-fade-in">
-                  {/* Row 1: type + amount + actions */}
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <span className={t.type === 'income' ? 'badge-income' : 'badge-expense'}>
-                        {t.type === 'income' ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
-                        {t.type}
-                      </span>
-                      <span className={`font-bold ${t.type === 'income' ? 'text-accent-400' : 'text-red-400'}`}>
-                        {t.type === 'expense' ? '-' : '+'}{fmt(t.amount)}
-                      </span>
+            <div className="md:hidden flex flex-col gap-0">
+              {transactions.map((t, idx) => {
+                const isIncome = t.type === 'income';
+                return (
+                  <div
+                    key={t._id}
+                    className="relative flex items-stretch animate-fade-in"
+                    style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}
+                  >
+                    {/* Colored left border strip */}
+                    <div
+                      className="w-1 shrink-0 rounded-r-full my-3"
+                      style={{ background: isIncome ? '#22c55e' : '#ef4444' }}
+                    />
+
+                    {/* Card content */}
+                    <div className="flex-1 px-4 py-4">
+                      {/* Top row: icon + category + amount */}
+                      <div className="flex items-center gap-3">
+                        {/* Type icon circle */}
+                        <div
+                          className="w-10 h-10 rounded-full flex items-center justify-center shrink-0"
+                          style={{
+                            background: isIncome ? 'rgba(34,197,94,0.12)' : 'rgba(239,68,68,0.12)',
+                            border: `1px solid ${isIncome ? 'rgba(34,197,94,0.25)' : 'rgba(239,68,68,0.25)'}`,
+                          }}
+                        >
+                          {isIncome
+                            ? <TrendingUp className="w-4 h-4 text-accent-400" />
+                            : <TrendingDown className="w-4 h-4 text-red-400" />
+                          }
+                        </div>
+
+                        {/* Category + reason */}
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-semibold text-base-100 truncate">{t.category}</p>
+                          {t.reason && (
+                            <p className="text-xs text-base-500 truncate mt-0.5">{t.reason}</p>
+                          )}
+                        </div>
+
+                        {/* Amount — prominent */}
+                        <div className="text-right shrink-0">
+                          <p className={`text-base font-bold ${isIncome ? 'text-accent-400' : 'text-red-400'}`}>
+                            {isIncome ? '+' : '-'}{fmt(t.amount)}
+                          </p>
+                          <p className="text-[10px] text-base-500 mt-0.5">
+                            {new Date(t.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Bottom row: source badge + by + actions */}
+                      <div className="flex items-center justify-between mt-3 pl-[52px]">
+                        <div className="flex items-center gap-2">
+                          <span className={`badge-${t.cashSource}`}>{t.cashSource}</span>
+                          {t.createdBy?.name && (
+                            <span className="text-[10px] text-base-600">by {t.createdBy.name}</span>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-0.5">
+                          <button
+                            onClick={() => setEditingTx(t)}
+                            className="w-8 h-8 rounded-lg flex items-center justify-center text-base-600 hover:text-base-300 hover:bg-base-800 transition-colors"
+                          >
+                            <Pencil className="w-3.5 h-3.5" />
+                          </button>
+                          <button
+                            onClick={() => handleDelete(t._id)}
+                            disabled={deleting === t._id}
+                            className="w-8 h-8 rounded-lg flex items-center justify-center text-base-600 hover:text-red-400 hover:bg-red-900/20 transition-colors"
+                          >
+                            {deleting === t._id
+                              ? <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                              : <Trash2 className="w-3.5 h-3.5" />
+                            }
+                          </button>
+                        </div>
+                      </div>
                     </div>
-                    <div className="flex items-center gap-1">
-                      <button onClick={() => setEditingTx(t)} className="btn-ghost p-1.5 text-base-500 hover:text-base-200">
-                        <Pencil className="w-4 h-4" />
-                      </button>
-                      <button
-                        onClick={() => handleDelete(t._id)}
-                        disabled={deleting === t._id}
-                        className="btn-ghost p-1.5 text-base-500 hover:text-red-400"
-                      >
-                        {deleting === t._id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
-                      </button>
-                    </div>
                   </div>
-                  {/* Row 2: category + source */}
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium text-base-200">{t.category}</span>
-                    <span className={`badge-${t.cashSource}`}>{t.cashSource}</span>
-                  </div>
-                  {/* Row 3: reason + date */}
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs text-base-400 truncate max-w-[55%]">{t.reason || '—'}</span>
-                    <span className="text-xs text-base-500 whitespace-nowrap">
-                      {new Date(t.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: '2-digit' })}
-                    </span>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
+
           </>
         )}
 
