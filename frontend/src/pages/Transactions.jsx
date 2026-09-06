@@ -10,7 +10,7 @@ import { useSocket } from '../context/SocketContext';
 import EditTransactionModal from '../components/EditTransactionModal';
 
 const fmt = (n) =>
-  new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(n);
+  new Intl.NumberFormat('en-ET', { style: 'currency', currency: 'ETB', maximumFractionDigits: 0 }).format(n);
 
 export default function Transactions() {
   const { socket } = useSocket();

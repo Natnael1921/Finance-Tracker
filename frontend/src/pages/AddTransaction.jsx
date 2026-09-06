@@ -125,9 +125,9 @@ export default function AddTransaction() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
               {/* Amount */}
               <div>
-                <label className="label">Amount (USD)</label>
+                <label className="label">Amount (ETB)</label>
                 <div className="relative">
-                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-base-400 text-sm font-medium">$</span>
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-base-400 text-sm font-medium">Br</span>
                   <input
                     name="amount"
                     type="number"

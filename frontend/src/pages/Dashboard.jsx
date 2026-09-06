@@ -14,7 +14,7 @@ import { useSocket } from '../context/SocketContext';
 import { useAuth } from '../context/AuthContext';
 
 const fmt = (n) =>
-  new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(n);
+  new Intl.NumberFormat('en-ET', { style: 'currency', currency: 'ETB', maximumFractionDigits: 0 }).format(n);
 
 const CATEGORY_COLORS = ['#22c55e', '#4ade80', '#86efac', '#3a3a3a', '#555555', '#888888'];
 

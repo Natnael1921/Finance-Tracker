@@ -24,7 +24,7 @@ const navItems = [
 /* ── Sidebar (desktop) ─────────────────────────────────────────────────── */
 function DesktopSidebar({ user, connected, isSuperAdmin, handleLogout }) {
   return (
-    <aside className="hidden lg:flex flex-col w-64 min-h-screen bg-base-900 border-r border-base-800 px-4 py-6 shrink-0">
+    <aside className="hidden lg:flex flex-col fixed top-0 left-0 h-screen w-64 bg-base-900 border-r border-base-800 px-4 py-6 shrink-0 z-30 overflow-y-auto">
       {/* Logo */}
       <div className="flex items-center gap-3 px-2 mb-8">
         <div className="w-10 h-10 rounded-xl overflow-hidden border border-accent-700/40 shrink-0">

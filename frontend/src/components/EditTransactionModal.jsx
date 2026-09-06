@@ -82,9 +82,9 @@ export default function EditTransactionModal({ transaction, onClose, onSaved }) 
                 </select>
               </div>
               <div>
-                <label className="label">Amount (USD)</label>
+                <label className="label">Amount (ETB)</label>
                 <div className="relative">
-                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-base-400 text-sm">$</span>
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-base-400 text-sm">Br</span>
                   <input
                     name="amount" type="number" min="0.01" step="0.01" required
                     value={form.amount}
